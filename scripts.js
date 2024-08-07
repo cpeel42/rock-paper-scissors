@@ -1,59 +1,102 @@
-// Returns randomly either rock, paper or scissors.
+let humanScore = 0;
+let computerScore = 0;
+let round = 0;
+
+let buttonContainer = document.querySelector('.buttonContainer');
+let roundText = document.querySelector('.roundNumber');
+let resultText = document.querySelector('.result');
+let body = document.querySelector('body');
+let gameButtons = buttonContainer.querySelectorAll('.gameButton');
+let resetButton = buttonContainer.querySelector('.resetButton');
+
+resetGame();
+
+buttonContainer.addEventListener('click', (event) => {
+    round++;
+    switch(event.target.id) {
+        case 'rockButton':
+            playRound('rock');
+            break;
+        case 'paperButton':
+            playRound('paper');
+            break;
+        case 'scissorsButton':
+            playRound('scissors');
+            break;
+        case 'resetButton':
+            resetGame();
+            break;
+    }
+    if (round == 5) {
+        endGame()
+    } 
+}); 
+
+//Functions
+
+// Game logic to determine winner and increment scores
+function playRound(humanChoice) {
+    let computerChoice = getComputerChoice();
+    let result = ""
+    if (humanChoice == computerChoice) {
+        result = "Tie"
+    } else if (humanChoice == 'rock' && computerChoice == 'scissors' || humanChoice == 'scissors' && computerChoice == 'paper' || humanChoice == 'paper' && computerChoice == 'rock') {
+        result = "Win"
+        humanScore++;
+    } else {
+        result = "Lose"
+        computerScore++;
+    }
+    addResult(result, humanChoice, computerChoice);
+    if (round >= 5) {
+        return
+    }
+    updateRoundScore();
+}
+
+function addResult(result, humanChoice, computerChoice) {
+    let roundInfo = document.querySelector(`#round${round}`);
+    roundInfo.textContent = `Round ${round} (${result}): You chose ${humanChoice}. Your opponent chose ${computerChoice}.`
+}
+
+function updateRoundScore() {
+    roundText.textContent = `Round ${round + 1} - Score ${humanScore}:${computerScore}`;
+}
+
+
+function displayWinner() {
+    if (humanScore > computerScore) {
+        resultText.textContent = "Congrats, you won!";
+    } else if (computerScore > humanScore) {
+        resultText.textContent = "Sorry, try again.";
+    } else {
+        resultText.textContent = "Tie game!";
+    }
+}
+
 function getComputerChoice() {
     let choices = ["rock", "paper", "scissors"];
     return choices[getRandomNumber(3)]
 }
 
-// Returns a random number from zero to the input max.
 function getRandomNumber(max) {
     return Math.floor(Math.random() * max);
 }
 
-// Prompt user for text and return value in lower case
-function getHumanChoice() {
-    let choice;
-    while(choice != "rock" && choice != "scissors" && choice != "paper") {
-        choice = prompt('Choose "rock", "paper" or "scissors".').toLowerCase();
-    }
-    return choice;
-}
+function endGame() {
+    roundText.textContent = `Game over - Score ${humanScore}:${computerScore}`
+    gameButtons.forEach(button => buttonContainer.removeChild(button));
+    buttonContainer.append(resetButton);
+    displayWinner();
+};
 
-// Game logic to determine winner and increment scores
-function playRound() {
-    let humanChoice = getHumanChoice();
-    let computerChoice = getComputerChoice();
-
-    if (humanChoice == computerChoice) {
-        console.log("Tie! Both you and the computer chose " + computerChoice + ". " + getScores());
-    } else if (humanChoice == 'rock' && computerChoice == 'scissors' || humanChoice == 'scissors' && computerChoice == 'paper' || humanChoice == 'paper' && computerChoice == 'rock') {
-        humanScore++;
-        console.log("You win! You chose " + humanChoice + " which beats " + computerChoice + ". " + getScores());
-    } else {
-        computerScore++;
-        console.log("You lose. The computer chose " + computerChoice + " which beats " + humanChoice + ". " + getScores());
-    }
-}
-
-function getScores() {
-    let message = "Score " + humanScore + ":" + computerScore;
-    return message;
-}
-
-let humanScore = 0;
-let computerScore = 0;
-let round = 0;
-
-// Play 5 rounds
-while (round < 5) {
-    playRound();
-    ++round;
-}
-
-// Display the winner
-if (humanScore > computerScore) {
-    console.log("Congrats, you won!");
-} else if (computerScore > humanScore) {
-    console.log("Sorry, try again.");
-} else {
-    console.log("Tie game!");
+function resetGame() {
+    humanScore = 0;
+    computerScore = 0;
+    round = 0;
+    updateRoundScore();
+    document.querySelectorAll('.roundInfo').forEach(round => round.textContent = "");
+    gameButtons.forEach(button => buttonContainer.append(button));
+    resetButton.remove()
+    resultText.textContent = "Good Luck!";
 }
